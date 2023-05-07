@@ -35,8 +35,25 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
     ----------
     key : str, optional 
 
-    buttons: list of dict. example [{"label": "<h1> Button 1</h1>","disabled":False,"kind":"primary","size":"default","shape":"default", "value":"1", "onClick":"console.log('clicked')",
-      "startEnhancer":"<h1>Start</h1>", "endEnhancer":"<h1>Ende</h1>", style={"backgroundColor":"red", "download_file":"","frontIcon": "Fa-Envelope", "backIcon": "Md-Home", "frontIconStyle": {"color": "red"}, "backIconStyle": {"color": "red"}}]
+    buttons: list of dict. example 
+    [{"label": "<h1> Button 1</h1>","disabled":False, "value":"1", "onClick":"console.log('clicked')","startEnhancer":"<h1>Start</h1>",
+    "endEnhancer":"<h1>Ende</h1>", style={"backgroundColor":"red", "download_file":{"data": "base64 encoded data", "filename": "filename", "mime_type": "mime_type (optional)"}}}}"]
+        One Button is a dict that can have the following keys:
+            label: str - The label of the button. You can use HTML tags to style the label or add fontawesome icons
+            value: any - The value of the button. This value will be returned to Streamlit when the button is clicked
+            disabled: bool - If True the button is disabled
+            onClick: str - A JavaScript function that will be executed when the button is clicked
+            startEnhancer: str - A HTML string that will be displayed before the label of the button (left side) - fontawesome icons are supported (example: <i class='fas fa-home'></i>)
+            endEnhancer: str - A HTML string that will be displayed after the label of the button (right side) - fontawesome icons are supported (example: <i class='fas fa-home'></i>)
+            style: dict - A dict with CSS properties that will be applied to the button
+
+            download_file: dict - A dict with the following keys:
+                data: str - base64 encoded data
+                filename: str - filename (please add the file extension)
+                mime_type: str - mime_type (optional) - if not provided the mime_type will be guessed from the filename
+
+    
+    
     group_style: dict, optional: default: {"marginTop": "4px","marginLeft": "4px","gap": "5px",}
 
     return_value: bool, optional - If False Streamlit wont receive any value from the component
