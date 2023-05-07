@@ -1,41 +1,43 @@
 import streamlit.components.v1 as components
 import os
+import mimetypes
 
-import logging
-
-
-_RELEASE = False
-
+_RELEASE = True
 
 if not _RELEASE:
     _component_func = components.declare_component(
-        # We give the component a simple, descriptive name ("my_component"
-        # does not fit this bill, so please choose something better for your
-        # own component :)
         "st_btn_group",
-        # Pass `url` here to tell Streamlit that the component will be served
-        # by the local dev server that you run via `npm run start`.
-        # (This is useful while your component is in development.)
         url="http://localhost:3000",
     )
 else:
-    # When we're distributing a production version of the component, we'll
-    # replace the `url` param with `path`, and point it to to the component's
-    # build directory:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     build_dir = os.path.join(parent_dir, "frontend/build")
     _component_func = components.declare_component("st_btn_group", path=build_dir)
 
-def st_btn_group(buttons: list, group_style:dict={"padding-top":"5px"},key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
-                 mode:str="defaukt",theme:str="light", height:int="50px"):
+def create_download_function(file_data: str, file_name: str, file_mime_type: str = None) -> str:
+    if not file_mime_type:
+        file_mime_type, _ = mimetypes.guess_type(file_name)
+    return f"""(function() {{
+        const link = document.createElement('a');
+        link.href = '{file_data}';
+        link.download = '{file_name}';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }})()"""
+
+def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
+                 mode:str="default",theme:str="light", height:int=60, align:str="left"):
+    
     """
 
     Parameters
     ----------
     key : str, optional 
 
-    buttons: list of dict. example [{"label": "<h1> Button 1</h1>","disabled":False,"kind":"primary","size":"default","shape":"default", "value":"1", "onClick":"console.log('clicked')", "startEnhancer":"<h1>Start</h1>", "endEnhancer":"<h1>Ende</h1>", style={"backgroundColor":"red"}}]
-    group_style: dict, optional
+    buttons: list of dict. example [{"label": "<h1> Button 1</h1>","disabled":False,"kind":"primary","size":"default","shape":"default", "value":"1", "onClick":"console.log('clicked')",
+      "startEnhancer":"<h1>Start</h1>", "endEnhancer":"<h1>Ende</h1>", style={"backgroundColor":"red", "download_file":"","frontIcon": "Fa-Envelope", "backIcon": "Md-Home", "frontIconStyle": {"color": "red"}, "backIconStyle": {"color": "red"}}]
+    group_style: dict, optional: default: {"marginTop": "4px","marginLeft": "4px","gap": "5px",}
 
     return_value: bool, optional - If False Streamlit wont receive any value from the component
     disabled: bool, optional - Disables the whole Button group
@@ -46,11 +48,50 @@ def st_btn_group(buttons: list, group_style:dict={"padding-top":"5px"},key:str =
 
     theme: str, optional - light, dark
 
+    height: int, optional - height of the button group
+    align: str, optional - left, center, right
     """
-   
-       
-    component_value = _component_func(buttons=buttons, group_style=group_style, disabled=disabled,key=key, return_value=return_value,
-                                      mode = mode, shape=shape, size=size, theme=theme)
+
+    default_group_style = {
+        "marginTop": "4px",
+        "marginLeft": "4px",
+        "gap": "5px",
+    }
+
+    for css_op in default_group_style:
+        if css_op not in group_style:
+            group_style[css_op] = default_group_style[css_op]
+
+    div_id = f"btn_group_container_{key}"
+    div_style = {}
+
+    if align == "center":
+        div_style["display"] = "flex"
+        div_style["flexWrap"] = "wrap"
+        div_style["justifyContent"] = "center"
+        div_style["alignItems"] = "center"
+
+    elif align == "right":
+        div_style["position"] = "absolute"
+        div_style["top"] = "0"
+        div_style["right"] = "0"
+    elif align == "left":
+        div_style["position"] = "absolute"
+        div_style["top"] = "0"
+        div_style["left"] = "0"
+
+    for button in buttons:
+        if "download_file" in button:
+            file_data = button["download_file"]["data"]
+            file_mime_type = button["download_file"]["mime_type"] if "mime_type" in button["download_file"] else None
+            file_name = button["download_file"]["filename"]
+
+            download_function = create_download_function(f"data:{file_mime_type};base64,{file_data}", file_name)
+
+            button["onClick"] = download_function
+
+    component_value = _component_func(buttons=buttons, group_style=group_style, div_id=div_id, div_style=div_style, disabled=disabled, key=key, return_value=return_value,
+                                      mode=mode, shape=shape, size=size, theme=theme, height=height)
 
     if return_value:
         return component_value
