@@ -90,11 +90,16 @@ const BtnGroup = (props: ComponentProps) => {
     <>
       <Helmet>
         <link
-          rel="stylesheet"
-          href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
-          crossOrigin="anonymous"
+          // rel="stylesheet"
+          // href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+          // integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
+          // crossOrigin="anonymous"
         />
+         <script
+      src="https://kit.fontawesome.com/c7cbba6207.js"
+      crossOrigin="anonymous"
+      id="font-awesome-icons"
+    ></script> 
       </Helmet>
       <StyletronProvider value={engine}>
         <ThemeProvider theme={theme === "dark" ? DarkTheme : LightTheme}>
