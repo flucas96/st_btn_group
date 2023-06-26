@@ -54,7 +54,7 @@ The `st_btn_group` function accepts the following parameters:
 
         - `endEnhancer`: A string that will be displayed after the button's label. For example, `endEnhancer="<i class="fas fa-home"></i>"`.
 
-        - `download_file`: Functionality to download a file directly when the button gets clicked without a callback to Streamlit. The input must be a dictionary like this one `{"filename": "file.xlsx", "data": base64 data, "mime_type": "mime Typ" (optional)}`. The mime_type is optional and will be guess using the file extension of the filename. The data must be base64 encoded. You can use the `base64` library to encode your data. For example, `base64.b64encode(data.encode()).decode()`.
+        - `download_file`: Functionality to download a file directly when the button gets clicked without a callback to Streamlit. The input must be a dictionary like this one `{"filename": "file.xlsx", "data": base64 data, "mime_type": "mime Typ" (optional), "large_file": True/False (optional)}`. The mime_type is optional and will be guess using the file extension of the filename. The data must be base64 encoded. You can use the `base64` library to encode your data. For example, `base64.b64encode(data.encode()).decode()`. The `large_file` parameter is optional and will be set to `False` by default. If set to `True`, the file will be download using Blob. The download will start a little bit later but the browser will not freeze. This is useful for large files. 
 
 - Example: 
 ```python
@@ -87,8 +87,13 @@ st_btn_group(
 
 - `group_style`: The style of the button group. The input must be a dictionary like this one `{"display": "flex", "justify-content": "center"}`.
 
-- `disabled`: Whether the button group is disabled or not. The input must be a boolean.
+- `merge_buttons`: Can be used when a group consits of multiple button groups. The input must be a boolean. If `True`, the buttons will visbile merged. 
 
+- `merge_style`: The style of the merged button group. The input must be a dictionary like this one `{"display": "flex", "justify-content": "center"}`.
+
+- `display_divider`: If true display a divider between the buttons.
+
+- `gap_between_buttons`: The gap between buttons. The integer will be interpreted as pixels. The input must be an integer.
 
 - `theme`: The theme of the buttons. The input must be a string. Possible values are `light` and `dark`.
 
@@ -99,6 +104,7 @@ st_btn_group(
 - `key`: An optional string to use as the unique key for the widget. If this is omitted, a key will be generated for the widget based on its content. Multiple widgets of the same type may not share the same key.
 
 - `custom_fontawesome_url`: Possibilty to provide a different FontAwesome URL to maybe display PRO Icons if you have a license. 
+
 
 
 

@@ -50,38 +50,42 @@ const BtnGroup = (props: ComponentProps) => {
   } = props.args;
 
   const { buttons } = props.args as { buttons: ButtonProps[] };
-  const [selectedIndices, setSelectedIndices] = useState<number[]>([]);
 
-  const handleClick = (
-    event: React.SyntheticEvent<HTMLButtonElement, Event>,
-    index: number,
-    value: string
-  ) => {
-    if (mode === "checkbox") {
-      const idx = selectedIndices.indexOf(index);
-      if (idx !== -1) {
-        selectedIndices.splice(idx, 1);
-      } else {
-        selectedIndices.push(index);
-      }
-      setSelectedIndices([...selectedIndices]);
-    } else if (mode === "radio") {
-      setSelectedIndices([index]);
+ const [selectedValues, setSelectedValues] = useState<string[]>([]);
+
+ const handleClick = (
+  event: React.SyntheticEvent<HTMLButtonElement, Event>,
+  index: number,
+  value: string
+) => {
+  // Use the index as the value if the value is not defined or is an empty string
+  value = value || value === "" ? index.toString() : value;
+
+  if (mode === "checkbox") {
+    const idx = selectedValues.indexOf(value);
+    if (idx !== -1) {
+      selectedValues.splice(idx, 1);
     } else {
-      // Normal button mode
-      if (selectedIndices.includes(index)) {
-        setSelectedIndices([]);
-      } else {
-        setSelectedIndices([index]);
-      }
+      selectedValues.push(value);
     }
-  };
+    setSelectedValues([...selectedValues]);
+  } else if (mode === "radio") {
+    setSelectedValues([value]);
+  } else {
+    // Normal button mode
+    if (selectedValues.includes(value)) {
+      setSelectedValues([]);
+    } else {
+      setSelectedValues([value]);
+    }
+  }
+};
 
-  useEffect(() => {
-    if (return_value) {
-      Streamlit.setComponentValue(Array.from(selectedIndices.values()));
-    }
-  }, [selectedIndices, return_value]);
+useEffect(() => {
+  if (return_value) {
+    Streamlit.setComponentValue(selectedValues);
+  }
+}, [selectedValues, return_value]);
 
 
   // Create a ref for the button group wrapper
@@ -100,9 +104,29 @@ const BtnGroup = (props: ComponentProps) => {
 
   return (
     <>
-      <Helmet>
-        <script src={custom_fontawesome_url} crossOrigin="anonymous" id="font-awesome-icons"></script> 
-      </Helmet>
+  <Helmet>
+  <script src={custom_fontawesome_url} crossOrigin="anonymous" id="font-awesome-icons"></script> 
+  <style>{`
+    .first-button {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      margin-right: 0;
+    }
+    .middle-button {
+      border-radius: 0;
+      margin-right: 0;
+    }
+    .middle-button.merge-dividers {
+      border-right: 1px solid #ccc;
+      border-left: 1px solid #ccc;
+    }
+    .last-button {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      margin-left: 0;
+    }
+  `}</style>
+</Helmet>
       <StyletronProvider value={engine}>
         <ThemeProvider theme={theme === "dark" ? DarkTheme : LightTheme}>
           <div id={div_id} style={div_style} ref={wrapperRef}>
@@ -128,30 +152,47 @@ const BtnGroup = (props: ComponentProps) => {
                 },
               }}
             >
-              {buttons.map((button, index) => (
-                <Button
-                  key={key + "_" + index}
-                  disabled={button.disabled || disabled}
-                  kind={button.kind || props.args.kind}
-                  startEnhancer={() => (
-                    <>
-                      {button.startEnhancer && (
-                        <span dangerouslySetInnerHTML={{ __html: button.startEnhancer }} />
-                      )}
-                    </>
-                  )}
-                  endEnhancer={() => (
-                    <>
-                      {button.endEnhancer && (
-                        <span dangerouslySetInnerHTML={{ __html: button.endEnhancer }} />
-                      )}
-                    </>
-                  )}
-                  style={button.style}
-                >
-                  <span dangerouslySetInnerHTML={{ __html: button.label }} />
-                </Button>
-              ))}
+              
+{buttons.map((button, index) => {
+  let buttonClass = '';
+  if (props.args.merge_buttons) {
+    if (index === 0) {
+      buttonClass = 'first-button';
+    } else if (index === buttons.length - 1) {
+      buttonClass = 'last-button';
+    } else {
+      buttonClass = 'middle-button';
+      if (props.args.display_divider) {
+        buttonClass += ' merge-dividers';
+      }
+    }
+  }
+  return (
+    <Button
+      key={key + "_" + index}
+      className={buttonClass}
+      disabled={button.disabled || disabled}
+      kind={button.kind || props.args.kind}
+      startEnhancer={() => (
+        <>
+          {button.startEnhancer && (
+            <span dangerouslySetInnerHTML={{ __html: button.startEnhancer }} />
+          )}
+        </>
+      )}
+      endEnhancer={() => (
+        <>
+          {button.endEnhancer && (
+            <span dangerouslySetInnerHTML={{ __html: button.endEnhancer }} />
+          )}
+        </>
+      )}
+      style={button.style}
+    >
+      <span dangerouslySetInnerHTML={{ __html: button.label }} />
+    </Button>
+  );
+})}
             </StatefulButtonGroup>
           </div>
         </ThemeProvider>

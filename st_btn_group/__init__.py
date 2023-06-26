@@ -1,7 +1,9 @@
 import streamlit.components.v1 as components
 import os
 import mimetypes
-
+import logging
+import base64
+import re 
 _RELEASE = False
 
 if not _RELEASE:
@@ -15,19 +17,82 @@ else:
     _component_func = components.declare_component("st_btn_group", path=build_dir)
 
 def create_download_function(file_data: str, file_name: str, file_mime_type: str = None) -> str:
+    """
+    Download a file using the data URL pattern (small files)
+    """
     if not file_mime_type:
         file_mime_type, _ = mimetypes.guess_type(file_name)
+
+    return f"""(function() {{
+         const link = document.createElement('a');
+         link.href = '{file_data}';
+         link.download = '{file_name}';
+         document.body.appendChild(link);
+         link.click();
+         document.body.removeChild(link);
+     }})()"""
+
+def create_download_function_large_files(file_data: str, file_name: str, file_mime_type: str = None) -> str:
+    """
+    Using the fetch API to download large files
+    """
+    # Remove whitespaces
+    file_data = file_data.replace(' ', '')
+
+    # Check if the data is Base64 encoded
+    is_base64 = re.match('^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$', file_data)
+    if not is_base64:
+        raise ValueError("The provided file data is not Base64 encoded.")
+
+    # Create the JavaScript function with the data URL, including the data: prefix and the mime type
     return f"""(function() {{
         const link = document.createElement('a');
-        link.href = '{file_data}';
         link.download = '{file_name}';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        const fileData = atob('{file_data}');
+        const byteCharacters = fileData;
+        const byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset += 512) {{
+            const slice = byteCharacters.slice(offset, offset + 512);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {{
+                byteNumbers[i] = slice.charCodeAt(i);
+            }}
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+        }}
+
+        const blob = new Blob(byteArrays, {{ type: '{file_mime_type}' }});
+        const url = URL.createObjectURL(blob);
+
+        fetch(url)
+            .then(response => {{
+                if (response.ok) {{
+                    return response.blob();
+                }} else {{
+                    throw new Error('Failed to fetch the file.');
+                }}
+            }})
+            .then(blob => {{
+                const downloadUrl = URL.createObjectURL(blob);
+                link.href = downloadUrl;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(downloadUrl);
+            }})
+            .catch(error => {{
+                console.error('Error creating download link:', error);
+            }})
+            .finally(() => {{
+                URL.revokeObjectURL(url);
+            }});
     }})()"""
 
+
 def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
-                 mode:str="default",theme:str="light", height:int=None, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js"):
+                 mode:str="default",theme:str="light", height:int=None, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js", merge_buttons=False,
+                 gap_between_buttons:int=5,display_divider=False):
     
     """
 
@@ -69,17 +134,26 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
     align: str, optional - left, center, right
 
     custom_fontawesome_url: str, optional - if you want to use fontawesome icons you can provide a custom url to the fontawesome script
+
+    merge_buttons: bool, optional - if True the buttons will be visible merged into one button group. If False each button will be in its own button group
     """
+
+    if merge_buttons:
+        if len(buttons) == 1:
+            merge_buttons = False
+            logging.warning("merge_buttons is True but only one button is provided. merge_buttons will be set to False")
 
     default_group_style = {
         "marginTop": "4px",
         "marginLeft": "4px",
-        "gap": "5px",
+        "gap": f"{gap_between_buttons}px !important",
     }
 
     for css_op in default_group_style:
         if css_op not in group_style:
             group_style[css_op] = default_group_style[css_op]
+    
+    group_style["gap"] = f"{gap_between_buttons}px !important"
 
     div_id = f"btn_group_container_{key}"
     div_style = {}
@@ -101,16 +175,36 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
 
     for button in buttons:
         if "download_file" in button:
+            # Get the data, filename, and optional mime type from the button dictionary
             file_data = button["download_file"]["data"]
-            file_mime_type = button["download_file"]["mime_type"] if "mime_type" in button["download_file"] else None
             file_name = button["download_file"]["filename"]
+            file_mime_type = button["download_file"]["mime_type"] if "mime_type" in button["download_file"] else None
 
-            download_function = create_download_function(f"data:{file_mime_type};base64,{file_data}", file_name)
+            # Guess the mime type from the file name if it's not provided
+            if not file_mime_type:
+                file_mime_type, _ = mimetypes.guess_type(file_name)
+
+            # Create the download function with the data in the correct format
+            # Pass only the Base64 data to the function, not the full data URL
+            if "large_file" in button["download_file"]:
+                if button["download_file"]["large_file"] == True:
+                    download_function = create_download_function_large_files(file_data, file_name, file_mime_type)
+                else:
+                    download_function = create_download_function(f"data:{file_mime_type};base64,{file_data}", file_name)
+            else:
+                    download_function = create_download_function(f"data:{file_mime_type};base64,{file_data}", file_name)
+
 
             button["onClick"] = download_function
 
     component_value = _component_func(buttons=buttons, group_style=group_style, div_id=div_id, div_style=div_style, disabled=disabled, key=key, return_value=return_value,
-                                      mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url)
+                                      mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url,merge_buttons=merge_buttons,display_divider=display_divider)
 
     if return_value:
+
+        if mode in ["default","radio"]:
+            if isinstance(component_value, list):
+                if len(component_value) == 1:
+                    return component_value[0]
+                
         return component_value
