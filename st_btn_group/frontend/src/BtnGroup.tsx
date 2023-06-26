@@ -47,6 +47,7 @@ const BtnGroup = (props: ComponentProps) => {
     height,
     div_id,
     div_style,
+    custom_fontawesome_url
   } = props.args;
 
   const { buttons } = props.args as { buttons: ButtonProps[] };
@@ -96,7 +97,7 @@ const BtnGroup = (props: ComponentProps) => {
           // crossOrigin="anonymous"
         />
          <script
-      src="https://kit.fontawesome.com/c7cbba6207.js"
+      src= {custom_fontawesome_url}
       crossOrigin="anonymous"
       id="font-awesome-icons"
     ></script> 

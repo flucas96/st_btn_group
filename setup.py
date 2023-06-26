@@ -5,8 +5,8 @@ with open('README.md') as f:
     long_desc = f.read()
 
 setuptools.setup(
-    name="st_bnt_group",
-    version="0.0.3",
+    name="st_btn_group",
+    version="0.0.4",
     author="",
     author_email="",
     setup_requires=['wheel'],
