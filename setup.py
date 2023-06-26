@@ -6,7 +6,7 @@ with open('README.md') as f:
 
 setuptools.setup(
     name="st_btn_group",
-    version="0.0.4",
+    version="0.0.8",
     author="",
     author_email="",
     setup_requires=['wheel'],

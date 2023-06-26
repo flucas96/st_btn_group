@@ -99,7 +99,7 @@ st_btn_group(
 
 - `align`: The alignment of the button group in streamlit. Possible values are `left`, `center`, `right`.
 
-- `height`: The height of the button group in streamlit. Must be adjusted if the buttons are cutoff.
+- `additionalHeight`: I noticed that sometimes the height of the iframe is to small. To accomodate for this you can add additional height to the iframe. The input must be an integer.
 
 - `key`: An optional string to use as the unique key for the widget. If this is omitted, a key will be generated for the widget based on its content. Multiple widgets of the same type may not share the same key.
 

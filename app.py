@@ -63,6 +63,8 @@ buttons = [{"startEnhancer": "<i class='fas fa-download'></i>",
 st_btn_group(buttons=buttons, key="download_button", return_value=False)
 """, language="python")
     
+st.info("When downloading larges dataframe it might be better for performace to set `large_file` to `True` in the `download_file` dict.")
+    
 
 st.divider()
 

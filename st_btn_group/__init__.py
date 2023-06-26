@@ -4,7 +4,7 @@ import mimetypes
 import logging
 import base64
 import re 
-_RELEASE = False
+_RELEASE = True
 
 if not _RELEASE:
     _component_func = components.declare_component(
@@ -92,7 +92,7 @@ def create_download_function_large_files(file_data: str, file_name: str, file_mi
 
 def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
                  mode:str="default",theme:str="light", height:int=None, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js", merge_buttons=False,
-                 gap_between_buttons:int=5,display_divider=False):
+                 gap_between_buttons:int=5,display_divider=False, additionalHeight:int=0):
     
     """
 
@@ -131,6 +131,7 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
     theme: str, optional - light, dark
 
     height: int, optional - height of the button group  - deprecated
+    additionalHeight: int, optional - additional height of the button group - I noticed that sometimes the height of the component is not calculated correctly. This parameter can be used to add additional height to the component
     align: str, optional - left, center, right
 
     custom_fontawesome_url: str, optional - if you want to use fontawesome icons you can provide a custom url to the fontawesome script
@@ -198,7 +199,8 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
             button["onClick"] = download_function
 
     component_value = _component_func(buttons=buttons, group_style=group_style, div_id=div_id, div_style=div_style, disabled=disabled, key=key, return_value=return_value,
-                                      mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url,merge_buttons=merge_buttons,display_divider=display_divider)
+                                      mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url,merge_buttons=merge_buttons,
+                                      display_divider=display_divider, additionalHeight=additionalHeight)
 
     if return_value:
 

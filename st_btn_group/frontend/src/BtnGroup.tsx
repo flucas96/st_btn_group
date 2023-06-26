@@ -46,7 +46,8 @@ const BtnGroup = (props: ComponentProps) => {
     theme,
     div_id,
     div_style,
-    custom_fontawesome_url
+    custom_fontawesome_url,
+    additionalHeight
   } = props.args;
 
   const { buttons } = props.args as { buttons: ButtonProps[] };
@@ -94,7 +95,7 @@ useEffect(() => {
   useEffect(() => {
     if (wrapperRef.current) {
       // Measure the height of the wrapper
-      const height = wrapperRef.current.offsetHeight + 1;
+      const height = wrapperRef.current.offsetHeight + 1 + additionalHeight;
 
       // Set the iframe height to the height of the wrapper
       Streamlit.setFrameHeight(height);
@@ -110,7 +111,7 @@ useEffect(() => {
     .first-button {
       border-top-right-radius: 0;
       border-bottom-right-radius: 0;
-      margin-right: 0;
+      margin-right: -1px;
     }
     .middle-button {
       border-radius: 0;
