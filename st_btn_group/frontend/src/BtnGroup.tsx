@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import {
   ComponentProps,
@@ -44,7 +44,6 @@ const BtnGroup = (props: ComponentProps) => {
     mode,
     disabled,
     theme,
-    height,
     div_id,
     div_style,
     custom_fontawesome_url
@@ -84,27 +83,29 @@ const BtnGroup = (props: ComponentProps) => {
     }
   }, [selectedIndices, return_value]);
 
+
+  // Create a ref for the button group wrapper
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    Streamlit.setFrameHeight(height);
-  }, []);
+    if (wrapperRef.current) {
+      // Measure the height of the wrapper
+      const height = wrapperRef.current.offsetHeight + 1;
+
+      // Set the iframe height to the height of the wrapper
+      Streamlit.setFrameHeight(height);
+    }
+  }, [wrapperRef]);
+
+
   return (
     <>
       <Helmet>
-        <link
-          // rel="stylesheet"
-          // href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
-          // integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
-          // crossOrigin="anonymous"
-        />
-         <script
-      src= {custom_fontawesome_url}
-      crossOrigin="anonymous"
-      id="font-awesome-icons"
-    ></script> 
+        <script src={custom_fontawesome_url} crossOrigin="anonymous" id="font-awesome-icons"></script> 
       </Helmet>
       <StyletronProvider value={engine}>
         <ThemeProvider theme={theme === "dark" ? DarkTheme : LightTheme}>
-          <div id={div_id} style={div_style}>
+          <div id={div_id} style={div_style} ref={wrapperRef}>
             <StatefulButtonGroup
               key={key}
               mode={

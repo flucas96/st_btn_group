@@ -2,7 +2,7 @@ import streamlit.components.v1 as components
 import os
 import mimetypes
 
-_RELEASE = True
+_RELEASE = False
 
 if not _RELEASE:
     _component_func = components.declare_component(
@@ -27,7 +27,7 @@ def create_download_function(file_data: str, file_name: str, file_mime_type: str
     }})()"""
 
 def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
-                 mode:str="default",theme:str="light", height:int=60, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js"):
+                 mode:str="default",theme:str="light", height:int=None, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js"):
     
     """
 
@@ -65,7 +65,7 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
 
     theme: str, optional - light, dark
 
-    height: int, optional - height of the button group
+    height: int, optional - height of the button group  - deprecated
     align: str, optional - left, center, right
 
     custom_fontawesome_url: str, optional - if you want to use fontawesome icons you can provide a custom url to the fontawesome script
@@ -110,7 +110,7 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
             button["onClick"] = download_function
 
     component_value = _component_func(buttons=buttons, group_style=group_style, div_id=div_id, div_style=div_style, disabled=disabled, key=key, return_value=return_value,
-                                      mode=mode, shape=shape, size=size, theme=theme, height=height, custom_fontawesome_url = custom_fontawesome_url)
+                                      mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url)
 
     if return_value:
         return component_value
