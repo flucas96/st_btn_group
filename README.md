@@ -2,6 +2,8 @@
 
 This is a custom Streamlit button group component that allows you to create groups of buttons with various options and styles.
 
+Example App: https://st-btn-group.streamlit.app/
+
 ## Installation
 
 1. Install the required dependencies with `pip install st-btn-group`.
