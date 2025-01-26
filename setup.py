@@ -6,10 +6,11 @@ with open('README.md') as f:
 
 setuptools.setup(
     name="st_btn_group",
-    version="0.0.8",
+    version="0.0.11",
     author="",
     author_email="",
     setup_requires=['wheel'],
+    license='MIT',
     description="Streamlit Component for BaseWeb Button Group",
     long_description=long_desc,
     long_description_content_type='text/markdown',

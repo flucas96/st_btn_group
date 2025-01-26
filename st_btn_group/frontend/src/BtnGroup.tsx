@@ -47,20 +47,28 @@ const BtnGroup = (props: ComponentProps) => {
     div_id,
     div_style,
     custom_fontawesome_url,
-    additionalHeight
+    additionalHeight,
+    radio_default_index  
   } = props.args;
 
   const { buttons } = props.args as { buttons: ButtonProps[] };
+  // updated from here
+  let initialSelectedValues: string[] = [];
+  if (mode === "radio" && radio_default_index !== null && radio_default_index >= 0 && radio_default_index < buttons.length) {
+    const defaultButton = buttons[radio_default_index];
+    initialSelectedValues = [defaultButton.value || radio_default_index.toString()];
+  }
+  const [selectedValues, setSelectedValues] = useState<string[]>(initialSelectedValues);
 
- const [selectedValues, setSelectedValues] = useState<string[]>([]);
+ //const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
- const handleClick = (
+const handleClick = (
   event: React.SyntheticEvent<HTMLButtonElement, Event>,
   index: number,
   value: string
 ) => {
-  // Use the index as the value if the value is not defined or is an empty string
-  value = value || value === "" ? index.toString() : value;
+  // If value exists and is not an empty string, return the value; otherwise, return the index.
+  value = value && value !== "" ? value : index.toString();
 
   if (mode === "checkbox") {
     const idx = selectedValues.indexOf(value);
@@ -105,29 +113,29 @@ useEffect(() => {
 
   return (
     <>
-  <Helmet>
-  <script src={custom_fontawesome_url} crossOrigin="anonymous" id="font-awesome-icons"></script> 
-  <style>{`
-    .first-button {
-      border-top-right-radius: 0;
-      border-bottom-right-radius: 0;
-      margin-right: -1px;
-    }
-    .middle-button {
-      border-radius: 0;
-      margin-right: 0;
-    }
-    .middle-button.merge-dividers {
-      border-right: 1px solid #ccc;
-      border-left: 1px solid #ccc;
-    }
-    .last-button {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      margin-left: 0;
-    }
-  `}</style>
-</Helmet>
+      <Helmet>
+        <script src={custom_fontawesome_url} crossOrigin="anonymous" id="font-awesome-icons"></script> 
+        <style>{`
+          .first-button {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            margin-right: -1px;
+          }
+          .middle-button {
+            border-radius: 0;
+            margin-right: 0;
+          }
+          .middle-button.merge-dividers {
+            border-right: 1px solid #ccc;
+            border-left: 1px solid #ccc;
+          }
+          .last-button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            margin-left: 0;
+          }
+        `}</style>
+      </Helmet>
       <StyletronProvider value={engine}>
         <ThemeProvider theme={theme === "dark" ? DarkTheme : LightTheme}>
           <div id={div_id} style={div_style} ref={wrapperRef}>
@@ -138,7 +146,7 @@ useEffect(() => {
                   ? MODE[mode as keyof typeof MODE]
                   : undefined
               }
-              initialState={{ selected: [] }}
+              initialState={{ selected: mode === "radio" && radio_default_index !== null ? [radio_default_index] : [] }}
               shape={props.args.shape || "default"}
               size={props.args.size || "default"}
               onClick={(event, index) => {
@@ -153,52 +161,51 @@ useEffect(() => {
                 },
               }}
             >
-              
-{buttons.map((button, index) => {
-  let buttonClass = '';
-  if (props.args.merge_buttons) {
-    if (index === 0) {
-      buttonClass = 'first-button';
-    } else if (index === buttons.length - 1) {
-      buttonClass = 'last-button';
-    } else {
-      buttonClass = 'middle-button';
-      if (props.args.display_divider) {
-        buttonClass += ' merge-dividers';
-      }
-    }
-  }
-  return (
-    <Button
-      key={key + "_" + index}
-      className={buttonClass}
-      disabled={button.disabled || disabled}
-      kind={button.kind || props.args.kind}
-      startEnhancer={() => (
-        <>
-          {button.startEnhancer && (
-            <span dangerouslySetInnerHTML={{ __html: button.startEnhancer }} />
-          )}
-        </>
-      )}
-      endEnhancer={() => (
-        <>
-          {button.endEnhancer && (
-            <span dangerouslySetInnerHTML={{ __html: button.endEnhancer }} />
-          )}
-        </>
-      )}
-      style={button.style}
-    >
-      <span dangerouslySetInnerHTML={{ __html: button.label }} />
-    </Button>
-  );
-})}
+              {buttons.map((button, index) => {
+                let buttonClass = '';
+                if (props.args.merge_buttons) {
+                  if (index === 0) {
+                    buttonClass = 'first-button';
+                  } else if (index === buttons.length - 1) {
+                    buttonClass = 'last-button';
+                  } else {
+                    buttonClass = 'middle-button';
+                    if (props.args.display_divider) {
+                      buttonClass += ' merge-dividers';
+                    }
+                  }
+                }
+                return (
+                  <Button
+                    key={key + "_" + index}
+                    className={buttonClass}
+                    disabled={button.disabled || disabled}
+                    kind={button.kind || props.args.kind}
+                    startEnhancer={() => (
+                      <>
+                        {button.startEnhancer && (
+                          <span dangerouslySetInnerHTML={{ __html: button.startEnhancer }} />
+                        )}
+                      </>
+                    )}
+                    endEnhancer={() => (
+                      <>
+                        {button.endEnhancer && (
+                          <span dangerouslySetInnerHTML={{ __html: button.endEnhancer }} />
+                        )}
+                      </>
+                    )}
+                    style={button.style}
+                  >
+                    <span dangerouslySetInnerHTML={{ __html: button.label }} />
+                  </Button>
+                );
+              })}
             </StatefulButtonGroup>
           </div>
         </ThemeProvider>
       </StyletronProvider>
     </>
   );
-};
+}
 export default withStreamlitConnection(BtnGroup);

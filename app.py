@@ -84,7 +84,7 @@ display_divider = divider.checkbox("Display Divider", value=False)
 
 buttons = [
     {   "label": "Button 1",
-        "value": "1",
+        "value": "btn1",
     },
     {   "label": "Button 2",
         "value": "2",
@@ -124,7 +124,12 @@ st.divider()
 st.subheader("Different Modes")
 
 modes,_,_ = st.columns((1,1,5)) 
-mode = modes.selectbox("Mode", ["default", "checkbox", "radio"], index=0)
+with modes:
+    mode = st.selectbox("Mode", ["default", "checkbox", "radio"], index=0)
+    if mode =="radio":
+        default_index = st.selectbox("Default Index", [None,0,1,2,3,4,], index=0)
+    else:
+        default_index = None
 st.info("**Caution:** Change the mode in this demo might lead to weird outputs, because the button value is not reseted when the mode is changed")
 
 buttons = [
@@ -145,8 +150,11 @@ buttons = [
 
 btn,code = st.columns((1,1))
 with btn:
-    returned = st_btn_group(buttons=buttons, key="2", mode=mode, return_value=True)
+    returned = st_btn_group(buttons=buttons, key="2", mode=mode, return_value=True, radio_default_index=2)
     st.write("Returned Value:", returned)
+
+    ret = st_btn_group(buttons=buttons, key="99", mode="radio", return_value=True, radio_default_index=0)
+    st.write("Returned Value:", ret)
 
 with code:
     st.code("""

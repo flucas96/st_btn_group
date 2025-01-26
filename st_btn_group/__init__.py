@@ -2,8 +2,8 @@ import streamlit.components.v1 as components
 import os
 import mimetypes
 import logging
-import base64
 import re 
+
 _RELEASE = True
 
 if not _RELEASE:
@@ -92,7 +92,7 @@ def create_download_function_large_files(file_data: str, file_name: str, file_mi
 
 def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel", return_value = True, shape:str="default",disabled:bool=False, size:str="default",
                  mode:str="default",theme:str="light", height:int=None, align:str="left", custom_fontawesome_url:str="https://kit.fontawesome.com/c7cbba6207.js", merge_buttons=False,
-                 gap_between_buttons:int=5,display_divider=False, additionalHeight:int=0):
+                 gap_between_buttons:int=5,display_divider=False, additionalHeight:int=0, radio_default_index:int=None):
     
     """
 
@@ -137,6 +137,8 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
     custom_fontawesome_url: str, optional - if you want to use fontawesome icons you can provide a custom url to the fontawesome script
 
     merge_buttons: bool, optional - if True the buttons will be visible merged into one button group. If False each button will be in its own button group
+
+    radio_default_index: int, optional - If not None the index will be the default value when in "radio" mode.
     """
 
     if merge_buttons:
@@ -198,9 +200,15 @@ def st_btn_group(buttons: list, group_style:dict={}, key:str = "first_carousel",
 
             button["onClick"] = download_function
 
+    if mode == "radio":
+        if radio_default_index is not None:
+            if radio_default_index > len(buttons)-1:
+                assert False, f"radio_default_index is {radio_default_index} but the button list has only {len(buttons)} elements. Please provide a valid index"
+                
+
     component_value = _component_func(buttons=buttons, group_style=group_style, div_id=div_id, div_style=div_style, disabled=disabled, key=key, return_value=return_value,
                                       mode=mode, shape=shape, size=size, theme=theme, custom_fontawesome_url = custom_fontawesome_url,merge_buttons=merge_buttons,
-                                      display_divider=display_divider, additionalHeight=additionalHeight)
+                                      display_divider=display_divider, additionalHeight=additionalHeight,radio_default_index=radio_default_index)
 
     if return_value:
 
