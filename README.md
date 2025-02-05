@@ -2,6 +2,10 @@
 
 This is a custom Streamlit button group component that allows you to create groups of buttons with various options and styles.
 
+<a href="https://flucas-component-overview.streamlit.app/?preselect=6" target="_blank">
+    <img src="https://img.shields.io/badge/Live%20Demo-Streamlit-red?style=for-the-badge&logo=streamlit" alt="Live Demo">
+</a>
+
 ## Installation
 
 1. Install the required dependencies with `pip install st-btn-group`.
